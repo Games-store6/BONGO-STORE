@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bongo Game Store | Kiwango cha Juu</title>
+    <!-- Font Awesome kwa ajili ya Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --purple-main: #4a148c;
+            --purple-light: #7b1fa2;
+            --red-main: #d32f2f;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-white);
+            padding-bottom: 80px;
+            user-select: none;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(45deg, var(--purple-main), var(--purple-light));
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 { margin: 0; font-size: 22px; letter-spacing: 1px; }
+
+        /* SLIDER (BANNER) */
+        .slider {
+            width: 95%;
+            height: 150px;
+            margin: 15px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            background: url('https://img.freepik.com/free-vector/gaming-concept-landing-page_23-2148240404.jpg') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slider-text {
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* SECTIONS */
+        section { display: none; padding: 15px; animation: fadeIn 0.5s; }
+        section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* GAME CARDS GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 15px;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            transition: 0.3s;
+            border: 1px solid #333;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .game-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+
+        .game-card h4 {
+            margin: 5px 0;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-download {
+            background: var(--red-main);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn-download:hover {
+            background: #b71c1c;
+        }
+
+        /* SPIN WHEEL */
+        .wheel-box {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        #canvas {
+            max-width: 280px;
+            width: 100%;
+            border: 8px solid var(--purple-light);
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto;
+            display: block;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #333;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover {
+            color: var(--text-white);
+        }
+
+        .nav-item.active { color: var(--purple-light); }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; display: block; }
+
+        /* WHATSAPP FLOAT */
+        .whatsapp-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 90px;
+            background: #25d366;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-decoration: none;
+            z-index: 999;
+        }
+
+        /* PAYMENT BOX */
+        .payment-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px dashed var(--purple-light);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .input-field {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            background: #333;
+            color: white;
+            font-size: 14px;
+        }
+
+        .btn-pay {
+            background: var(--purple-main);
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-pay:hover {
+            background: var(--purple-light);
+        }
+
+        /* ADMIN PANEL */
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .admin-form {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            border: 2px solid var(--purple-main);
+        }
+
+        .close-admin {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--red-main);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* ALERT MESSAGE */
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 3000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* SECTION TITLES */
+        .section-title {
+            border-left: 4px solid var(--red-main);
+            padding-left: 10px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fa-solid fa-gamepad"></i> BONGO STORE</h1>
+</header>
+
+<!-- WhatsApp Button -->
+<a href="https://wa.me/255613424991" class="whatsapp-btn">
+    <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<!-- Alert Message -->
+<div class="alert" id="alert"></div>
+
+<!-- SECTION: MALIPO -->
+<section id="pay-sec" class="active">
+    <div class="payment-card">
+        <h2 style="color: var(--red-main);">KARIBU MEMBER!</h2>
+        <p>Website hii ni ya kulipia mara moja tu (Tsh 5,000).</p>
+        <div style="background: #000; padding: 10px; border-radius: 10px; margin: 15px 0;">
+            <p style="margin: 5px;">Lipa kwenda HALOPESA:</p>
+            <h3 style="color: #25d366; margin: 5px;">0613424991</h3>
+            <p style="font-size: 12px;">Jina: [JINA LAKO]</p>
+        </div>
+        <p>Baada ya kulipia, weka namba ya muamala hapa:</p>
+        <input type="text" id="txn" class="input-field" placeholder="Mfano: 8HH676TRQ">
+        <button class="btn-pay" onclick="validate()">FUNGUA STORE</button>
+        <br><br>
+        <p style="font-size: 11px; color: #777; cursor: pointer;" onclick="showAdminLogin()">Mimi ni Admin (Ingia)</p>
+    </div>
+</section>
+
+<!-- SECTION: STORE -->
+<section id="store-sec">
+    <div class="slider">
+        <div class="slider-text">GAMES MPYA KILA SIKU</div>
+    </div>
+    
+    <h3 class="section-title">Michezo Inayovuma</h3>
+    <div class="grid" id="game-list">
+        <!-- Game 1 -->
+        <div class="game-card">
+            <img src="https://m.media-amazon.com/images/I/71YyP9fL6jL.png" alt="Game">
+            <h4>Dream League</h4>
+            <button class="btn-download" onclick="downloadGame('Dream League Soccer')">PAKUA</button>
+        </div>
+        <!-- Game 2 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/Vb9p9_m50689_Y5pP9t-iI6H7Q9p1Z6Q_p" alt="Game">
+            <h4>Car Highway</h4>
+            <button class="btn-download" onclick="downloadGame('Car Highway Racing')">PAKUA</button>
+        </div>
+        <!-- Game 3 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/W6hA5b2n0J8AGjgR9Lq8L4TF9v7uK49RZ4o8iy8QhWCK6ufN9E1g0i55VWGDS8b7eg=w240-h480-rw" alt="Game">
+            <h4>Subway Surfers</h4>
+            <button class="btn-download" onclick="downloadGame('Subway Surfers')">PAKUA</button>
+        </div>
+        <!-- Game 4 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/lMoItBgdPPVDJsNOVtP26EKHePkwBg-PkuY9NOrc-fumRtTFP4XhpUNk_22syN4Datc=w240-h480-rw" alt="Game">
+            <h4>Temple Run 2</h4>
+            <button class="btn-download" onclick="downloadGame('Temple Run 2')">PAKUA</button>
+        </div>
+        <!-- Game 5 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/yAtZnNL-9Eb5VYSsCaOC7KAsOVIJcY8mpKa0MoF-0HCL6b0OrFcBizURHywpuip-D6Y=w240-h480-rw" alt="Game">
+            <h4>Car Parking</h4>
+            <button class="btn-download" onclick="downloadGame('Car Parking Multiplayer')">PAKUA</button>
+        </div>
+        <!-- Game 6 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/4tN3_N2PYojpG0zvupq0P7wQthh2TH6T0J8H6KZkPz1PYTtJvK4XoB4B7I6nMk-OTg=w240-h480-rw" alt="Game">
+            <h4>Free Fire</h4>
+            <button class="btn-download" onclick="downloadGame('Free Fire')">PAKUA</button>
+        </div>
+    </div>
+    
+    <h3 class="section-title">Michezo ya Akili</h3>
+    <div class="grid" id="puzzle-games">
+        <!-- Game 7 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/TLUeelx8wcpEzf3hoqeLxPs3ai1tdGtAZTIFkNqy3gbDp1NPpNFTOzSFJDvZ9narE0c=w240-h480-rw" alt="Game">
+            <h4>Chess</h4>
+            <button class="btn-download" onclick="downloadGame('Chess')">PAKUA</button>
+        </div>
+        <!-- Game 8 -->
+        <div class="game-card">
+            <img src="https://play-lh.googleusercontent.com/y6jRR0zAVhU-bIFC-80Cr66OTNJw7f5Pq8gq1V1p7gqPOFfO7T1kIOyNYnOfF_QkKpE=w240-h480-rw" alt="Game">
+            <h4>Ludo King</h4>
+            <button class="btn-download" onclick="downloadGame('Ludo King')">PAKUA</button>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION: SPIN -->
+<section id="spin-sec">
+    <div class="wheel-box">
+        <h2>Zungusha Ushinde</h2>
+        <p>Una nafasi 1 ya kuspin kila siku!</p>
+        <canvas id="canvas" width="300" height="300"></canvas><br><br>
+        <button class="btn-pay" style="background: var(--red-main);" onclick="spinWheel()" id="spin-btn">ZUNGUSHA (1000)</button>
+        <p id="spin-result" style="margin-top: 15px; font-weight: bold;"></p>
+    </div>
+</section>
+
+<!-- SECTION: ADMIN (HII HAIONEKANI BILA PIN) -->
+<section id="admin-sec">
+    <div class="payment-card">
+        <h2 style="color: var(--purple-light);">Panel ya Admin</h2>
+        
+        <h3 class="section-title">Ongeza Mchezo Mpya</h3>
+        <input type="text" id="game-name" class="input-field" placeholder="Jina la Mchezo">
+        <input type="text" id="game-image" class="input-field" placeholder="URL ya Picha ya Mchezo">
+        <input type="text" id="game-category" class="input-field" placeholder="Kategoria (mfano: Michezo ya Kucheza)">
+        <button class="btn-pay" onclick="addNewGame()">ONGEZA MCHEZO</button>
+        
+        <h3 class="section-title" style="margin-top: 30px;">Orodha ya Wateja Waliolipa</h3>
+        <div id="customer-list" style="background: #000; padding: 15px; border-radius: 10px; margin: 15px 0; max-height: 200px; overflow-y: auto;">
+            <p style="color: #888; text-align: center;">Hakuna wateja bado</p>
+        </div>
+        
+        <button class="btn-pay" style="background: var(--red-main);" onclick="showSection('store-sec')">Rudi kwenye Store</button>
+    </div>
+</section>
+
+<!-- ADMIN LOGIN OVERLAY -->
+<div class="admin-overlay" id="admin-overlay">
+    <div class="admin-form">
+        <h2 style="color: var(--purple-light);">Admin Login</h2>
+        <p style="font-size: 12px; color: #888;">Weka PIN ya Admin ili uweze kuingia</p>
+        <input type="password" id="admin-password" class="input-field" placeholder="Weka PIN ya Admin (VINI26)">
+        <button class="btn-pay" onclick="checkAdminPassword()">INGIA</button>
+        <button class="btn-pay" style="background: #666; margin-top: 10px;" onclick="hideAdminLogin()">FUNGA</button>
+    </div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="showSection('pay-sec')">
+        <i class="fas fa-credit-card"></i>
+        Malipo
+    </div>
+    <div class="nav-item" onclick="showSection('store-sec')">
+        <i class="fas fa-store"></i>
+        Store
+    </div>
+    <div class="nav-item" onclick="showSection('spin-sec')">
+        <i class="fas fa-gift"></i>
+        Zungusha
+    </div>
+    <div class="nav-item" onclick="openAdminSection()">
+        <i class="fas fa-user-shield"></i>
+        Admin
+    </div>
+</div>
+
+<script>
+    // Variables
+    let isPaid = localStorage.getItem('bongoStorePaid') === 'true';
+    let spinUsed = localStorage.getItem('spinUsed') === 'true';
+    let games = JSON.parse(localStorage.getItem('storeGames')) || [];
+    let customers = JSON.parse(localStorage.getItem('storeCustomers')) || [];
+    let adminLoggedIn = false; // Admin hajalogin mwanzo
+    
+    // Check if user has already paid
+    if(isPaid) {
+        showSection('store-sec');
+        updateNav('store-sec');
+    }
+    
+    // Initialize wheel
+    let wheelSpinning = false;
+    let wheelCanvas, wheelCtx;
+    const wheelSegments = [
+        { text: "FREE GAME", color: "#4CAF50" },
+        { text: "TRY AGAIN", color: "#FF9800" },
+        { text: "500 TSH", color: "#2196F3" },
+        { text: "DISCOUNT", color: "#9C27B0" },
+        { text: "BONUS", color: "#FF5722" },
+        { text: "100 TSH", color: "#00BCD4" }
+    ];
+    
+    // Initialize the wheel when page loads
+    window.onload = function() {
+        initWheel();
+        
+        // Load saved games
+        if(games.length > 0) {
+            displayGames();
+        }
+        
+        // Load customers
+        displayCustomers();
+        
+        // Update spin button
+        if(spinUsed) {
+            document.getElementById('spin-btn').disabled = true;
+            document.getElementById('spin-btn').innerHTML = 'ILITUMIKA LEO';
+            document.getElementById('spin-btn').style.background = '#666';
+        }
+    };
+    
+    // Navigation functions
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Show selected section
+        document.getElementById(sectionId).classList.add('active');
+        
+        // Update navigation
+        updateNav(sectionId);
+    }
+    
+    function updateNav(sectionId) {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if(item.onclick && item.onclick.toString().includes(sectionId)) {
+                item.classList.add('active');
+            }
+        });
+    }
+    
+    // ADMIN SECTION ACCESS - HII NDIO ILIYOBADILISHWA
+    function openAdminSection() {
+        // Kila wakati admin anapotaka kuingia, anahitaji kuweka PIN
+        adminLoggedIn = false; // Reset login status kila wakati
+        showAdminLogin();
+    }
+    
+    function checkAdminPassword() {
+        const password = document.getElementById('admin-password').value;
+        
+        // ADMIN PIN: VINI26 (kama ulivyokwambia)
+        if(password === 'VINI26') {
+            adminLoggedIn = true;
+            showAlert('Umefanikiwa kuingia kama admin!', 'success');
+            showSection('admin-sec');
+            updateNav('admin-sec');
+            hideAdminLogin();
+        } else {
+            showAlert('PIN si sahihi! PIN sahihi ni: VINI26', 'error');
+            adminLoggedIn = false;
+        }
+    }
+    
+    // Admin login functions
+    function showAdminLogin() {
+        document.getElementById('admin-overlay').style.display = 'flex';
+        document.getElementById('admin-password').value = ''; // Clear previous input
+        document.getElementById('admin-password').focus(); // Focus on input
+    }
+    
+    function hideAdminLogin() {
+        document.getElementById('admin-overlay').style.display = 'none';
+        document.getElementById('admin-password').value = '';
+    }
+    
+    // Payment validation
+    function validate() {
+        const txn = document.getElementById('txn').value.trim();
+        
+        if(!txn) {
+            showAlert('Tafadhali weka namba ya muamala!', 'error');
+            return;
+        }
+        
+        if(txn.length < 6) {
+            showAlert('Namba ya muamala si sahihi!', 'error');
+            return;
+        }
+        
+        // Simulate payment processing
+        showAlert('Inasasisha taarifa yako...', 'info');
+        
+        setTimeout(() => {
+            // Save payment status
+            localStorage.setItem('bongoStorePaid', 'true');
+            localStorage.setItem('paymentTxn', txn);
+            
+            // Record customer
+            const customer = {
+                id: Date.now(),
+                txn: txn,
+                date: new Date().toLocaleDateString('sw-TZ'),
+                time: new Date().toLocaleTimeString('sw-TZ')
+            };
+            
+            customers.push(customer);
+            localStorage.setItem('storeCustomers', JSON.stringify(customers));
+            displayCustomers();
+            
+            showAlert('Malipo yamefanikiwa! Store imefunguliwa.', 'success');
+            
+            // Switch to store section
+            showSection('store-sec');
+            updateNav('store-sec');
+            
+            isPaid = true;
+        }, 2000);
+    }
+    
+    function addNewGame() {
+        // Check if admin is logged in
+        if(!adminLoggedIn) {
+            showAlert('Tafadhali ingia kama admin kwanza!', 'error');
+            openAdminSection();
+            return;
+        }
+        
+        const name = document.getElementById('game-name').value.trim();
+        const image = document.getElementById('game-image').value.trim();
+        const category = document.getElementById('game-category').value.trim();
+        
+        if(!name) {
+            showAlert('Tafadhali weka jina la mchezo!', 'error');
+            return;
+        }
+        
+        const newGame = {
+            id: Date.now(),
+            name: name,
+            image: image || 'https://via.placeholder.com/150/7b1fa2/ffffff?text=GAME',
+            category: category || 'Michezo Inayovuma'
+        };
+        
+        games.push(newGame);
+        localStorage.setItem('storeGames', JSON.stringify(games));
+        
+        // Clear form
+        document.getElementById('game-name').value = '';
+        document.getElementById('game-image').value = '';
+        document.getElementById('game-category').value = '';
+        
+        // Refresh display
+        displayGames();
+        showAlert('Mchezo mpya umeongezwa!', 'success');
+    }
+    
+    function displayGames() {
+        // This function would dynamically add games to the store
+        // For simplicity, we're keeping the static games
+        // You can enhance this to dynamically create game cards
+    }
+    
+    function displayCustomers() {
+        const customerList = document.getElementById('customer-list');
+        
+        if(customers.length === 0) {
+            customerList.innerHTML = '<p style="color: #888; text-align: center;">Hakuna wateja bado</p>';
+            return;
+        }
+        
+        let html = '';
+        customers.forEach(customer => {
+            html += `
+                <div style="background: #222; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                    <p style="margin: 2px 0; font-size: 12px;">TXN: ${customer.txn}</p>
+                    <p style="margin: 2px 0; font-size: 10px; color: #888;">${customer.date} ${customer.time}</p>
+                </div>
+            `;
+        });
+        
+        customerList.innerHTML = html;
+    }
+    
+    // Download game function
+    function downloadGame(gameName) {
+        if(!isPaid) {
+            showAlert('Lipa kwanza kupata michezo!', 'error');
+            showSection('pay-sec');
+            updateNav('pay-sec');
+            return;
+        }
+        
+        showAlert(`Inapakua ${gameName}...`, 'info');
+        
+        // Simulate download
+        setTimeout(() => {
+            showAlert(`${gameName} imepakuliwa kikamilifu!`, 'success');
+        }, 1500);
+    }
+    
+    // Wheel functions
+    function initWheel() {
+        wheelCanvas = document.getElementById('canvas');
+        wheelCtx = wheelCanvas.getContext('2d');
+        
+        drawWheel();
+    }
+    
+    function drawWheel() {
+        const centerX = wheelCanvas.width / 2;
+        const centerY = wheelCanvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 10;
+        const arc = (2 * Math.PI) / wheelSegments.length;
+        
+        wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+        
+        // Draw segments
+        for(let i = 0; i < wheelSegments.length; i++) {
+            const startAngle = i * arc;
+            const endAngle = startAngle + arc;
+            
+            wheelCtx.beginPath();
+            wheelCtx.moveTo(centerX, centerY);
+            wheelCtx.arc(centerX, centerY, radius, startAngle, endAngle);
+            wheelCtx.fillStyle = wheelSegments[i].color;
+            wheelCtx.fill();
+            wheelCtx.strokeStyle = '#fff';
+            wheelCtx.lineWidth = 2;
+            wheelCtx.stroke();
+            
+            // Draw text
+            wheelCtx.save();
+            wheelCtx.translate(centerX, centerY);
+            wheelCtx.rotate(startAngle + arc/2);
+            wheelCtx.textAlign = 'right';
+            wheelCtx.fillStyle = 'white';
+            wheelCtx.font = 'bold 14px Arial';
+            wheelCtx.fillText(wheelSegments[i].text, radius - 20, 5);
+            wheelCtx.restore();
+        }
+        
+        // Draw center circle
+        wheelCtx.beginPath();
+        wheelCtx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+        wheelCtx.fillStyle = '#FFD700';
+        wheelCtx.fill();
+        wheelCtx.strokeStyle = '#000';
+        wheelCtx.lineWidth = 3;
+        wheelCtx.stroke();
+        
+        // Draw pointer
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(centerX + radius, centerY);
+        wheelCtx.lineTo(centerX + radius + 20, centerY - 10);
+        wheelCtx.lineTo(centerX + radius + 20, centerY + 10);
+        wheelCtx.closePath();
+        wheelCtx.fillStyle = '#FF5722';
+        wheelCtx.fill();
+    }
+    
+    function spinWheel() {
+        if(!isPaid) {
+            showAlert('Lipa kwanza kutumia zungusha!', 'error');
+            showSection('pay-sec');
+            updateNav('pay-sec');
+            return;
+        }
+        
+        if(spinUsed) {
+            showAlert('Umetumia nafasi yako ya leo! Rudi kesho.', 'error');
+            return;
+        }
+        
+        if(wheelSpinning) return;
+        
+        wheelSpinning = true;
+        document.getElementById('spin-btn').disabled = true;
+        document.getElementById('spin-result').textContent = '';
+        
+        // Calculate random result
+        const spins = 5 + Math.random() * 3; // 5-8 full spins
+        const segmentAngle = 360 / wheelSegments.length;
+        const randomSegment = Math.floor(Math.random() * wheelSegments.length);
+        const finalAngle = spins * 360 + (randomSegment * segmentAngle);
+        
+        // Animate wheel
+        let currentRotation = 0;
+        const duration = 3000; // 3 seconds
+        const startTime = Date.now();
+        
+        function animateWheel() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            currentRotation = easeOut * finalAngle;
+            
+            // Redraw wheel with rotation
+            wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            wheelCtx.save();
+            wheelCtx.translate(wheelCanvas.width/2, wheelCanvas.height/2);
+            wheelCtx.rotate(currentRotation * Math.PI / 180);
+            wheelCtx.translate(-wheelCanvas.width/2, -wheelCanvas.height/2);
+            drawWheel();
+            wheelCtx.restore();
+            
+            if(progress < 1) {
+                requestAnimationFrame(animateWheel);
+            } else {
+                // Wheel stopped
+                wheelSpinning = false;
+                spinUsed = true;
+                localStorage.setItem('spinUsed', 'true');
+                
+                // Update button
+                document.getElementById('spin-btn').innerHTML = 'ILITUMIKA LEO';
+                document.getElementById('spin-btn').style.background = '#666';
+                
+                // Show result
+                const result = wheelSegments[randomSegment].text;
+                document.getElementById('spin-result').textContent = `UMESHINDA: ${result}`;
+                document.getElementById('spin-result').style.color = wheelSegments[randomSegment].color;
+                
+                showAlert(`Hongera! Umeshinda ${result}`, 'success');
+            }
+        }
+        
+        animateWheel();
+    }
+    
+    // Alert function
+    function showAlert(message, type) {
+        const alert = document.getElementById('alert');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        
+        // Set color based on type
+        if(type === 'error') {
+            alert.style.background = '#f44336';
+        } else if(type === 'success') {
+            alert.style.background = '#4CAF50';
+        } else {
+            alert.style.background = '#2196F3';
+        }
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 3000);
+    }
+    
+    // For demo purposes - simulate payment
+    function demoPayment() {
+        document.getElementById('txn').value = 'DEMO' + Date.now().toString().slice(-8);
+        validate();
+    }
+</script>
+</body>
+</html>
